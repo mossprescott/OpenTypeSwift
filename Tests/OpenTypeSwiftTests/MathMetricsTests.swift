@@ -3,9 +3,9 @@ import XCTest
 
 final class MathMetricsTests: XCTestCase {
     func testNoMathMetrics() {
-        let helv = FontMetrics(name: "Helvetica", size: 12.0)
+        let helv = CTFontCreateWithName("Helvetica" as CFString, 12.0, nil)
     
-        XCTAssertNil(helv.mathMetrics())
+        XCTAssertNil(helv.mathMetrics)
     }
 
     // Check _every_ metric on Latin Modern Math 12. Most of these look
@@ -13,9 +13,9 @@ final class MathMetricsTests: XCTestCase {
     // suggested values, but this test mostly just proves that the offsets
     // aren't out of whack.
     func testLatinModern() {
-        let lmm12 = FontMetrics(name: "Latin Modern Math", size: 12.0)
+        let lmm12 = CTFontCreateWithName("Latin Modern Math" as CFString, 12.0, nil)
 
-        let metrics = lmm12.mathMetrics()!
+        let metrics = lmm12.mathMetrics!
 
         XCTAssertEqual(metrics.majorVersion, 1)
         XCTAssertEqual(metrics.minorVersion, 0)

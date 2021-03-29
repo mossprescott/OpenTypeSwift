@@ -1,43 +1,36 @@
 import CoreText
 
-struct FontMetrics {
-    var font: CTFont
-    
-    init(name: String, size: CGFloat) {
-        font = CTFontCreateWithName(name as! CFString,
-                                    size,
-                                    nil)
-    }
-    
-    init(font: CTFont) {
-        self.font = font
-    }
-    
-    func mathMetrics() -> MathMetrics? {
-        if let data = CTFontCopyTable(font, CTFontTableTag(kCTFontTableMATH), CTFontTableOptions(rawValue: 0)) {
-            return MathMetrics(font: font, data: data)
+extension CTFont {
+    /// Safe accessor for MathMetrics, which will be non-nil only if the table is present and has
+    /// a compatible version number.
+    var mathMetrics: MathMetrics? {
+        if getMathTableData(font: self) != nil {
+            let metrics = MathMetrics(font: self)
+            if metrics.majorVersion == 1 {
+                return metrics
+            }
         }
-        else {
-            return nil
-        }
+        return nil
     }
+}
+
+private func getMathTableData(font: CTFont) -> CFData? {
+    return CTFontCopyTable(font,
+                           CTFontTableTag(kCTFontTableMATH),
+                           CTFontTableOptions(rawValue: 0))
 }
 
 /// Font data from the OpenType `MATH` table, which is useful for laying out math expressions.
 /// Unless otherwise specified, all measurements are in points, scaled to the font's size.
 ///
-/// Retains a copy of the table and a reference to the font.
-///
-/// TODO: the docs say the data reference must be released. What does that mean, exactly?
+/// Acquire one via `.mathMetrics` on any CTFont that includes the `MATH` table.
 ///
 /// See https://docs.microsoft.com/en-us/typography/opentype/spec/math
 class MathMetrics {
     let font: CTFont
-    let data: CFData
-    
-    init(font: CTFont, data: CFData) {
+
+    fileprivate init(font: CTFont) {
         self.font = font
-        self.data = data
     }
 
 
@@ -393,7 +386,7 @@ class MathMetrics {
     
     /// Read 16 bits, in big-endian order, at the given (byte) offset.
     private func read16(offset: CFIndex) -> UInt16 {
-        let ptr = CFDataGetBytePtr(data)!
+        let ptr = CFDataGetBytePtr(getMathTableData(font: font)!)!
         return (ptr+offset).withMemoryRebound(to: UInt16.self, capacity: 1) {
             $0.pointee.byteSwapped
         }
@@ -401,7 +394,7 @@ class MathMetrics {
     
     /// Read 16 signed bits, in big-endian order, at the given (byte) offset.
     private func readSigned16(offset: CFIndex) -> Int16 {
-        let ptr = CFDataGetBytePtr(data)!
+        let ptr = CFDataGetBytePtr(getMathTableData(font: font)!)!
         return (ptr+offset).withMemoryRebound(to: Int16.self, capacity: 1) {
             $0.pointee.byteSwapped
         }
@@ -412,7 +405,8 @@ class MathMetrics {
         let constantsOffset = Int(read16(offset: 4))
         return read16(offset: constantsOffset + offset)
     }
-    
+
+    /// Read a signed value, in points, accounting for device-pixel-level adjustments (in theory.)
     private func readConstantsMathValueRecord(offset: CFIndex) -> CGFloat {
         let constantsOffset = Int(read16(offset: 4))
         let value = readSigned16(offset: constantsOffset + offset)

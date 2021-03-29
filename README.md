@@ -9,8 +9,8 @@ this library just makes it nice to use from Swift, with named accessors for all 
 Check if the MATH table is present:
 
 ```swift
-let helvetica12 = FontMetrics(name: "Helvetica", size: 12.0)
-if let metrics = helvetica12.mathMetrics() {
+let helvetica12 = CTFontCreateWithName("Helvetica" as CFString, 12.0, nil)
+if let metrics = helvetica12.mathMetrics {
     print("That's surprising!")
 }
 ```
@@ -18,8 +18,8 @@ if let metrics = helvetica12.mathMetrics() {
 Access a constant, scaled to the font size:
 
 ```swift
-let lm12 = FontMetrics(name: "Latin Modern Math", size: 12.0)
-let metrics = lm12.mathMetrics()!
+let lm12 = CTFontCreateWithName("Latin Modern Math" as CFString, 12.0, nil)
+let metrics = lm12.mathMetrics!
 print("axis height above baseline, in pts: \(metrics.axisHeight)")  // 3.0
 ```
 
