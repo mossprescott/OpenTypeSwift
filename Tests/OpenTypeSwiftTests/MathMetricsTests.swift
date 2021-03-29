@@ -94,6 +94,7 @@ final class MathMetricsTests: XCTestCase {
     }
 
     static var allTests = [
+        ("testNoMathMetrics", testNoMathMetrics),
         ("testLatinModern", testLatinModern),
     ]
 }
