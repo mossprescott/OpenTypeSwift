@@ -3,7 +3,7 @@ import CoreText
 extension CTFont {
     /// Safe accessor for MathMetrics, which will be non-nil only if the table is present and has
     /// a compatible version number.
-    var mathMetrics: MathMetrics? {
+    public var mathMetrics: MathMetrics? {
         if getMathTableData(font: self) != nil {
             let metrics = MathMetrics(font: self)
             if metrics.majorVersion == 1 {
@@ -26,7 +26,7 @@ private func getMathTableData(font: CTFont) -> CFData? {
 /// Acquire one via `.mathMetrics` on any CTFont that includes the `MATH` table.
 ///
 /// See https://docs.microsoft.com/en-us/typography/opentype/spec/math
-class MathMetrics {
+public class MathMetrics {
     let font: CTFont
 
     fileprivate init(font: CTFont) {
@@ -37,12 +37,12 @@ class MathMetrics {
 // MARK: - MATH header
 
     /// Major version of the MATH table, = 1.
-    var majorVersion: UInt16 {
+    public var majorVersion: UInt16 {
         read16(offset: 0)
     }
 
     /// Minor version of the MATH table, = 0.
-    var minorVersion: UInt16 {
+    public var minorVersion: UInt16 {
         read16(offset: 2)
     }
 
@@ -52,24 +52,24 @@ class MathMetrics {
 // See https://docs.microsoft.com/en-us/typography/opentype/spec/math#mathconstants-table
 
     /// Ratio of scaling down for level 1 superscripts and subscripts. Suggested value: 0.8.
-    var scriptRatioScaleDown: CGFloat {
+    public var scriptRatioScaleDown: CGFloat {
         CGFloat(readConstants16(offset: 0))/100
     }
 
     /// Ratio of scaling down for level 2 (scriptScript) superscripts and subscripts. Suggested value: 0.6.
-    var scriptScriptRatioScaleDown: CGFloat {
+    public var scriptScriptRatioScaleDown: CGFloat {
         CGFloat(readConstants16(offset: 2))/100
     }
 
     /// Minimum height required for a delimited expression (contained within parentheses, etc.) to be
     /// treated as a sub-formula. Suggested value: normal line height × 1.5.
-    var delimitedSubFormulaMinHeight: CGFloat {
+    public var delimitedSubFormulaMinHeight: CGFloat {
         designUnitsToPoints(readConstants16(offset: 4))
     }
 
     /// Minimum height of n-ary operators (such as integral and summation) for formulas in display mode
     /// (that is, appearing as standalone page elements, not embedded inline within text).
-    var displayOperatorMinHeight: CGFloat {
+    public var displayOperatorMinHeight: CGFloat {
         designUnitsToPoints(readConstants16(offset: 6))
     }
     
@@ -77,7 +77,7 @@ class MathMetrics {
     /// that treat line gap as a part of line ascender, formulas with ink going above
     /// `(os2.sTypoAscender + os2.sTypoLineGap - MathLeading)` or with ink going below
     /// `os2.sTypoDescender` will result in increasing line height.
-    var mathLeading: CGFloat {
+    public var mathLeading: CGFloat {
         readConstantsMathValueRecord(offset: 8)
     }
 
@@ -87,277 +87,277 @@ class MathMetrics {
     /// The math axis is similar to but distinct from the baseline for regular text layout. For example, in a simple equation,
     /// a minus symbol or fraction rule would be on the axis, but a string for a variable name would be set on a baseline
     /// that is offset from the axis. The axisHeight value determines the amount of that offset.
-    var axisHeight: CGFloat {
+    public var axisHeight: CGFloat {
         readConstantsMathValueRecord(offset: 12)
     }
 
     /// Maximum (ink) height of accent base that does not require raising the accents. Suggested: x‑height of the font
     /// (`os2.sxHeight`) plus any possible overshots.
-    var accentBaseHeight: CGFloat {
+    public var accentBaseHeight: CGFloat {
         readConstantsMathValueRecord(offset: 16)
     }
     
     /// Maximum (ink) height of accent base that does not require flattening the accents. Suggested: cap height of the font
     /// (`os2.sCapHeight`).
-    var flattenedAccentBaseHeight: CGFloat {
+    public var flattenedAccentBaseHeight: CGFloat {
         readConstantsMathValueRecord(offset: 20)
     }
     
     /// The standard shift down applied to subscript elements. Positive for moving in the downward direction. Suggested:
     /// `os2.ySubscriptYOffset`.
-    var subscriptShiftDown: CGFloat {
+    public var subscriptShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 24)
     }
     
     /// Maximum allowed height of the (ink) top of subscripts that does not require moving subscripts further down.
     /// Suggested: `4/5 x-height`.
-    var subscriptTopMax: CGFloat {
+    public var subscriptTopMax: CGFloat {
         readConstantsMathValueRecord(offset: 28)
     }
     
     /// Minimum allowed drop of the baseline of subscripts relative to the (ink) bottom of the base. Checked for bases
     /// that are treated as a box or extended shape. Positive for subscript baseline dropped below the base bottom.
-    var subscriptBaselineDropMin: CGFloat {
+    public var subscriptBaselineDropMin: CGFloat {
         readConstantsMathValueRecord(offset: 32)
     }
     
     /// Standard shift up applied to superscript elements. Suggested: `os2.ySuperscriptYOffset`.
-    var superscriptShiftUp: CGFloat {
+    public var superscriptShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 36)
     }
     
     /// Standard shift of superscripts relative to the base, in cramped style.
-    var superscriptShiftUpCramped: CGFloat {
+    public var superscriptShiftUpCramped: CGFloat {
         readConstantsMathValueRecord(offset: 40)
     }
     
     /// Minimum allowed height of the (ink) bottom of superscripts that does not require moving subscripts further up.
     /// Suggested: ¼ `x-height`.
-    var superscriptBottomMin: CGFloat {
+    public var superscriptBottomMin: CGFloat {
         readConstantsMathValueRecord(offset: 44)
     }
     
     /// Maximum allowed drop of the baseline of superscripts relative to the (ink) top of the base. Checked for bases
     /// that are treated as a box or extended shape. Positive for superscript baseline below the base top.
-    var superscriptBaselineDropMax: CGFloat {
+    public var superscriptBaselineDropMax: CGFloat {
         readConstantsMathValueRecord(offset: 48)
     }
     
     /// Minimum gap between the superscript and subscript ink. Suggested: 4 × default rule thickness.
-    var subSuperscriptGapMin: CGFloat {
+    public var subSuperscriptGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 52)
     }
     
     /// The maximum level to which the (ink) bottom of superscript can be pushed to increase the gap
     /// between superscript and subscript, before subscript starts being moved down. Suggested: 4/5 `x-height`.
-    var superscriptBottomMaxWithSubscript: CGFloat {
+    public var superscriptBottomMaxWithSubscript: CGFloat {
         readConstantsMathValueRecord(offset: 56)
     }
     
     /// Extra white space to be added after each subscript and superscript. Suggested: 0.5 pt for a 12 pt font.
     /// (Note that, in some math layout implementations, a constant value, such as 0.5 pt, may be used for all
     /// text sizes. Some implementations may use a constant ratio of text size, such as 1/24 of em.)
-    var spaceAfterScript: CGFloat {
+    public var spaceAfterScript: CGFloat {
         readConstantsMathValueRecord(offset: 60)
     }
     
     /// Minimum gap between the (ink) bottom of the upper limit, and the (ink) top of the base operator.
-    var upperLimitGapMin: CGFloat {
+    public var upperLimitGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 64)
     }
     
     /// Minimum distance between baseline of upper limit and (ink) top of the base operator.
-    var upperLimitBaselineRiseMin: CGFloat {
+    public var upperLimitBaselineRiseMin: CGFloat {
         readConstantsMathValueRecord(offset: 68)
     }
     
     /// Minimum gap between (ink) top of the lower limit, and (ink) bottom of the base operator.
-    var lowerLimitGapMin: CGFloat {
+    public var lowerLimitGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 72)
     }
     
     /// Minimum distance between baseline of the lower limit and (ink) bottom of the base operator.
-    var lowerLimitBaselineDropMin: CGFloat {
+    public var lowerLimitBaselineDropMin: CGFloat {
         readConstantsMathValueRecord(offset: 76)
     }
     
     /// Standard shift up applied to the top element of a stack.
-    var stackTopShiftUp: CGFloat {
+    public var stackTopShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 80)
     }
     
     /// Standard shift up applied to the top element of a stack in display style.
-    var stackTopDisplayStyleShiftUp: CGFloat {
+    public var stackTopDisplayStyleShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 84)
     }
     
     /// Standard shift down applied to the bottom element of a stack. Positive for moving in the downward direction.
-    var stackBottomShiftDown: CGFloat {
+    public var stackBottomShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 88)
     }
     
     /// Standard shift down applied to the bottom element of a stack in display style. Positive for moving in the downward direction.
-    var stackBottomDisplayStyleShiftDown: CGFloat {
+    public var stackBottomDisplayStyleShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 92)
     }
     
     /// Minimum gap between (ink) bottom of the top element of a stack, and the (ink) top of the bottom element. Suggested:
     /// 3 × default rule thickness.
-    var stackGapMin: CGFloat {
+    public var stackGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 96)
     }
     
     /// Minimum gap between (ink) bottom of the top element of a stack, and the (ink) top of the bottom element in display style.
     /// Suggested: 7 × default rule thickness.
-    var stackDisplayStyleGapMin: CGFloat {
+    public var stackDisplayStyleGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 100)
     }
     
     /// Standard shift up applied to the top element of the stretch stack.
-    var stretchStackTopShiftUp: CGFloat {
+    public var stretchStackTopShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 104)
     }
     
     /// Standard shift down applied to the bottom element of the stretch stack. Positive for moving in the downward direction.
-    var stretchStackBottomShiftDown: CGFloat {
+    public var stretchStackBottomShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 108)
     }
     
     /// Minimum gap between the ink of the stretched element, and the (ink) bottom of the element above. Suggested: same value
     /// as `upperLimitGapMin`.
-    var stretchStackGapAboveMin: CGFloat {
+    public var stretchStackGapAboveMin: CGFloat {
         readConstantsMathValueRecord(offset: 112)
     }
     
     /// Minimum gap between the ink of the stretched element, and the (ink) top of the element below. Suggested: same value
     /// as `lowerLimitGapMin`.
-    var stretchStackGapBelowMin: CGFloat {
+    public var stretchStackGapBelowMin: CGFloat {
         readConstantsMathValueRecord(offset: 116)
     }
     
     /// Standard shift up applied to the numerator.
-    var fractionNumeratorShiftUp: CGFloat {
+    public var fractionNumeratorShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 120)
     }
     
     /// Standard shift up applied to the numerator in display style. Suggested: same value as `stackTopDisplayStyleShiftUp`.
-    var fractionNumeratorDisplayStyleShiftUp: CGFloat {
+    public var fractionNumeratorDisplayStyleShiftUp: CGFloat {
         readConstantsMathValueRecord(offset: 124)
     }
     
     /// Standard shift down applied to the denominator. Positive for moving in the downward direction.
-    var fractionDenominatorShiftDown: CGFloat {
+    public var fractionDenominatorShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 128)
     }
     
     /// Standard shift down applied to the denominator in display style. Positive for moving in the downward direction.
     /// Suggested: same value as `stackBottomDisplayStyleShiftDown`.
-    var fractionDenominatorDisplayStyleShiftDown: CGFloat {
+    public var fractionDenominatorDisplayStyleShiftDown: CGFloat {
         readConstantsMathValueRecord(offset: 132)
     }
     
     /// Minimum tolerated gap between the (ink) bottom of the numerator and the ink of the fraction bar. Suggested:
     /// default rule thickness.
-    var fractionNumeratorGapMin: CGFloat {
+    public var fractionNumeratorGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 136)
     }
     
     /// Minimum tolerated gap between the (ink) bottom of the numerator and the ink of the fraction bar in display style.
     /// Suggested: 3 × default rule thickness.
-    var fractionNumDisplayStyleGapMin: CGFloat {
+    public var fractionNumDisplayStyleGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 140)
     }
     
     /// Thickness of the fraction bar. Suggested: default rule thickness.
-    var fractionRuleThickness: CGFloat {
+    public var fractionRuleThickness: CGFloat {
         readConstantsMathValueRecord(offset: 144)
     }
     
     /// Minimum tolerated gap between the (ink) top of the denominator and the ink of the fraction bar. Suggested:
     /// default rule thickness.
-    var fractionDenominatorGapMin: CGFloat {
+    public var fractionDenominatorGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 148)
     }
     
     /// Minimum tolerated gap between the (ink) top of the denominator and the ink of the fraction bar in display style.
     /// Suggested: 3 × default rule thickness.
-    var fractionDenomDisplayStyleGapMin: CGFloat {
+    public var fractionDenomDisplayStyleGapMin: CGFloat {
         readConstantsMathValueRecord(offset: 152)
     }
     
     /// Horizontal distance between the top and bottom elements of a skewed fraction.
-    var skewedFractionHorizontalGap: CGFloat {
+    public var skewedFractionHorizontalGap: CGFloat {
         readConstantsMathValueRecord(offset: 156)
     }
     
     /// Vertical distance between the ink of the top and bottom elements of a skewed fraction.
-    var skewedFractionVerticalGap: CGFloat {
+    public var skewedFractionVerticalGap: CGFloat {
         readConstantsMathValueRecord(offset: 160)
     }
     
     /// Distance between the overbar and the (ink) top of the base. Suggested: 3 × default rule thickness.
-    var overbarVerticalGap: CGFloat {
+    public var overbarVerticalGap: CGFloat {
         readConstantsMathValueRecord(offset: 164)
     }
     
     /// Thickness of overbar. Suggested: default rule thickness.
-    var overbarRuleThickness: CGFloat {
+    public var overbarRuleThickness: CGFloat {
         readConstantsMathValueRecord(offset: 168)
     }
     
     /// Extra white space reserved above the overbar. Suggested: default rule thickness.
-    var overbarExtraAscender: CGFloat {
+    public var overbarExtraAscender: CGFloat {
         readConstantsMathValueRecord(offset: 172)
     }
     
     /// Distance between underbar and (ink) bottom of the base. Suggested: 3 × default rule thickness.
-    var underbarVerticalGap: CGFloat {
+    public var underbarVerticalGap: CGFloat {
         readConstantsMathValueRecord(offset: 176)
     }
     
     /// Thickness of underbar. Suggested: default rule thickness.
-    var underbarRuleThickness: CGFloat {
+    public var underbarRuleThickness: CGFloat {
         readConstantsMathValueRecord(offset: 180)
     }
     
     /// Extra white space reserved below the underbar. Always positive. Suggested: default rule thickness.
-    var underbarExtraDescender: CGFloat {
+    public var underbarExtraDescender: CGFloat {
         readConstantsMathValueRecord(offset: 184)
     }
     
     /// Space between the (ink) top of the expression and the bar over it. Suggested: 1¼ default rule thickness.
-    var radicalVerticalGap: CGFloat {
+    public var radicalVerticalGap: CGFloat {
         readConstantsMathValueRecord(offset: 188)
     }
     
     /// Space between the (ink) top of the expression and the bar over it. Suggested: default rule thickness + ¼ x-height.
-    var radicalDisplayStyleVerticalGap: CGFloat {
+    public var radicalDisplayStyleVerticalGap: CGFloat {
         readConstantsMathValueRecord(offset: 192)
     }
     
     /// Thickness of the radical rule. This is the thickness of the rule in designed or constructed radical signs.
     /// Suggested: default rule thickness.
-    var radicalRuleThickness: CGFloat {
+    public var radicalRuleThickness: CGFloat {
         readConstantsMathValueRecord(offset: 196)
     }
     
     /// Extra white space reserved above the radical. Suggested: same value as `radicalRuleThickness`.
-    var radicalExtraAscender: CGFloat {
+    public var radicalExtraAscender: CGFloat {
         readConstantsMathValueRecord(offset: 200)
     }
     
     /// Extra horizontal kern before the degree of a radical, if such is present. Suggested: 5/18 of em.
-    var radicalKernBeforeDegree: CGFloat {
+    public var radicalKernBeforeDegree: CGFloat {
         readConstantsMathValueRecord(offset: 204)
     }
     
     /// Negative kern after the degree of a radical, if such is present. Suggested: −10/18 of em.
-    var radicalKernAfterDegree: CGFloat {
+    public var radicalKernAfterDegree: CGFloat {
         readConstantsMathValueRecord(offset: 208)
     }
     
     /// Height of the bottom of the radical degree, if such is present, in proportion to the ascender of the radical sign. Suggested: 0.6.
-    var radicalDegreeBottomRaiseRatio: CGFloat {
+    public var radicalDegreeBottomRaiseRatio: CGFloat {
         CGFloat(readConstants16(offset: 0))/100
     }
     

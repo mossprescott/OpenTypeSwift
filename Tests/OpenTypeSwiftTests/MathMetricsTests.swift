@@ -1,5 +1,5 @@
 import XCTest
-@testable import OpenTypeSwift
+import OpenTypeSwift
 
 final class MathMetricsTests: XCTestCase {
     func testNoMathMetrics() {
